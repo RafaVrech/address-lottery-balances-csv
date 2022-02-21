@@ -72,10 +72,10 @@ def iter_loadtxt(file_path, delimiter=',', skiprows=0, dtype='U34'):
             split_line = line.rstrip().split(delimiter)
             for column in split_line:
               yield column
-      iter_loadtxt.rowlength = len(line)
+      iter_loadtxt.rowlength = len(split_line)
 
     data = np.fromiter(iter_func(), dtype=dtype)
-    data = data.reshape((-1, iter_loadtxt.rowlength))
+    data = data.reshape((-1, 3))
     return data
 
 def printStuff(text, toPrint):
