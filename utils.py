@@ -75,7 +75,7 @@ def iter_loadtxt(file_path, delimiter=',', skiprows=0, dtype='U34'):
       iter_loadtxt.rowlength = len(split_line)
 
     data = np.fromiter(iter_func(), dtype=dtype)
-    data = data.reshape((-1, 3))
+    data = data.reshape((-1, iter_loadtxt.rowlength))
     return data
 
 def printStuff(text, toPrint):
