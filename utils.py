@@ -68,8 +68,9 @@ def iter_loadtxt(file_path, delimiter=',', skiprows=0, dtype='U34'):
         for _ in range(skiprows):
             next(infile)
         for line in infile:
-            line = line.rstrip().split(delimiter)
-            for column in line:
+          if(line[0] == '1'):
+            split_line = line.rstrip().split(delimiter)
+            for column in split_line:
               yield column
       iter_loadtxt.rowlength = len(line)
 
