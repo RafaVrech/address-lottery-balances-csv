@@ -1,4 +1,6 @@
-from numba import cuda
+from audioop import add
+from this import d
+import numba
 from utils import *
 from kernel import *
 import atexit
@@ -38,27 +40,37 @@ while(pk_range_start < pk_range_end):
   # create array with addresses 
   initial_array = create_array_input(file_private_keys_state, pk_range_step, pk_range_start)
 
-  csv_array = iter_loadtxt(csv_file_path, skiprows=1)
+  initial_array_set = set()
+  for row in initial_array:
+    initial_array_set.add(row)
+  
+  initial_array.add('853b0691f07db7fda89618b82abd610292983ee7')
+    
+  csv_array_set = set()
+  for row in iter_loadtxt(csv_file_path, skiprows=1):
+    csv_array_set.add(row[2])
 
+  print(initial_array_set & csv_array_set)
+  
   # copy stuff to GPU
-  device_in = cuda.to_device(initial_array)
-  device_csv_in = cuda.to_device(csv_array)
-  device_out = cuda.device_array(pk_range_step, dtype='U34')
+  # device_in = cuda.to_device(initial_array)
+  # device_csv_in = cuda.to_device(csv_array_set)
+  # device_out = cuda.device_array(pk_range_step, dtype='U40')
 
   # run the kernel
-  gpu_kernel[blocks_per_grid, threads_per_block](device_in, device_csv_in, device_out)
+  # gpu_kernel[blocks_per_grid, threads_per_block](device_in, device_csv_in, device_out)
 
   # wait for all threads to complete
-  cuda.synchronize()
+  # cuda.synchronize()
 
   # copy the output array back to the host system
-  out_result = device_out.copy_to_host()
+  # out_result = device_out.copy_to_host()
 
   # Save to file which generated addresses matched with an address with balance
-  file_results.write(str(out_result))
+  # file_results.write(str(out_result))
 
   # Print which generated addresses matched with an address with balance
-  printStuff("Result", device_out.copy_to_host())
+  # printStuff("Result", device_out.copy_to_host())
   
   # Overide the state
-  file_private_keys_state.write(pk_range_start)
+  # file_private_keys_state.write(pk_range_start)

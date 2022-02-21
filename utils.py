@@ -58,7 +58,7 @@ def download_dump(csv_file_path):
   #       print('Downloading csv: (' + i + '/' + number_of_rows + ')', end="\r")
   #       f.write(line+'\n'.encode())
 
-def iter_loadtxt(file_path, delimiter=',', skiprows=0, dtype='U34'):
+def iter_loadtxt(file_path, delimiter=',', skiprows=0, dtype='U40'):
     def iter_func():
       if(not os.path.exists(file_path)):
         download_dump(file_path)
@@ -90,10 +90,10 @@ def create_array_input(file_private_keys_state, pk_range_step, pk_range_start):
   if(private_keys_state != ''):
     pk_range_start = BigInteger(private_keys_state)
 
-  initial_array = np.array([], dtype='U34')
+  initial_array = np.array([], dtype='U40')
   pk = pk_range_start
   for _ in range(pk_range_step):
     address_ridemp160 = private_key_to_public_key(pk)
-    initial_array = np.append(initial_array, np.array([address_ridemp160], dtype='U34'))
+    initial_array = np.append(initial_array, np.array([address_ridemp160], dtype='U40'))
     pk += 1
   return initial_array
