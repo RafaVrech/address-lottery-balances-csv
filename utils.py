@@ -1,5 +1,6 @@
 import codecs
 import hashlib
+from posixpath import split
 import ecdsa
 import numpy as np
 from sqlalchemy import BigInteger
@@ -58,25 +59,41 @@ def download_dump(csv_file_path):
   #       print('Downloading csv: (' + i + '/' + number_of_rows + ')', end="\r")
   #       f.write(line+'\n'.encode())
 
-def iter_loadtxt(file_path, delimiter=',', skiprows=0, dtype='U40'):
-    def iter_func():
-      if(not os.path.exists(file_path)):
-        download_dump(file_path)
+def load_csv(file_path, delimiter=',', skiprows=0, dtype='U40'):
+  def iter_func():
+    if(not os.path.exists(file_path)):
+      download_dump(file_path)
+    
+    with open(file_path, 'r') as infile:
       
-      with open(file_path, 'r') as infile:
-        
-        for _ in range(skiprows):
-            next(infile)
-        for line in infile:
-          if(line[0] == '1'):
-            split_line = line.rstrip().split(delimiter)
-            for column in split_line:
-              yield column
-      iter_loadtxt.rowlength = len(split_line)
+      for _ in range(skiprows):
+          next(infile)
+      for line in infile:
+        if(line[0] == '1'):
+          split_line = line.rstrip().split(delimiter)
+          for column in split_line:
+            yield column
+    load_csv.rowlength = len(split_line)
 
     data = np.fromiter(iter_func(), dtype=dtype)
-    data = data.reshape((-1, iter_loadtxt.rowlength))
+    data = data.reshape((-1, load_csv.rowlength))
     return data
+  
+  
+def load_csv_to_set(file_path, delimiter=',', skiprows=0, dtype='U40'):
+  csv_array_set = set()
+  if(not os.path.exists(file_path)):
+    download_dump(file_path)
+  
+  with open(file_path, 'r') as infile:
+    for _ in range(skiprows):
+        next(infile)
+    for line in infile:
+      if(line[0] == '1'):
+        split_line = line.rstrip().split(delimiter)[2]
+        csv_array_set.add(split_line)
+          
+    return csv_array_set
 
 def printStuff(text, toPrint):
   print(">" + text + ("", " (size=" + str(toPrint.size) + ")")[isinstance(toPrint, np.ndarray)])
@@ -84,12 +101,7 @@ def printStuff(text, toPrint):
   print("<" + text)
   print()
   
-def create_array_input(file_private_keys_state, pk_range_step, pk_range_start):
-  private_keys_state = file_private_keys_state.readline()
-
-  if(private_keys_state != ''):
-    pk_range_start = BigInteger(private_keys_state)
-
+def create_array_input(pk_range_step, pk_range_start):
   initial_array = np.array([], dtype='U40')
   pk = pk_range_start
   for _ in range(pk_range_step):
